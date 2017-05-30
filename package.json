@@ -1,0 +1,54 @@
+{
+  "name": "saga-geolocation-observer",
+  "version": "1.0.0",
+  "description": "Use saga-observables to provide a simple way to use the HTML5 Geolocation API with redux-saga",
+  "main": "dist/saga-geolocation-observer.js",
+  "author": "Braden R. Napier",
+  "license": "MIT",
+  "scripts": {
+    "test": "./node_modules/.bin/mocha --require co-mocha",
+    "prepublish": "npm run build:prod",
+    "build:prod": "cross-env NODE_ENV=production BABEL_ENV=production babel-node config/scripts/build",
+    "build": "babel-node config/scripts/build"
+  },
+  "keywords": [
+    "react",
+    "redux",
+    "redux-saga",
+    "saga-event",
+    "saga-observable",
+    "observable",
+    "geolocation",
+    "watchPosition"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Dash-OS/saga-geolocation-observer.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Dash-OS/saga-geolocation-observer/issues"
+  },
+  "devDependencies": {
+    "app-root-dir": "^1.0.2",
+    "babel-cli": "^6.24.1",
+    "babel-loader": "^7.0.0",
+    "babel-plugin-lodash": "^3.2.11",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-preset-babili": "^0.1.2",
+    "babel-preset-env": "^1.5.1",
+    "babel-preset-stage-0": "^6.24.1",
+    "babili-webpack-plugin": "^0.1.1",
+    "colors": "^1.1.2",
+    "cross-env": "^5.0.0",
+    "happypack": "^3.1.0",
+    "lodash-webpack-plugin": "^0.11.4",
+    "rimraf": "^2.6.1",
+    "webpack": "^2.6.1",
+    "webpack-node-externals": "^1.6.0",
+    "yargs": "^8.0.1"
+  },
+  "dependencies": {
+    "redux-saga": "^0.15.3",
+    "saga-observable": "^1.0.4"
+  }
+}
