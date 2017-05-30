@@ -24,6 +24,7 @@ export default (config = {}) => {
     devtool: process.env.NODE_ENV !== 'production' && 'source-map',
     
     entry: [
+      'regenerator-runtime/runtime',
       path.resolve(root_dir, './src/main.js'),
     ],
   
@@ -66,7 +67,7 @@ export default (config = {}) => {
       ]
     },
   
-    externals: [ nodeExternals() ]
+    externals: [ nodeExternals(), /redux-saga/ ]
   
   }
 }
