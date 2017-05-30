@@ -19,7 +19,7 @@ export default (config = {}) => {
   
   return {
     
-    target: 'async-node',
+    target: 'node',
     
     devtool: process.env.NODE_ENV !== 'production' && 'source-map',
     

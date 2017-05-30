@@ -35,7 +35,7 @@ export default function* watchPositionObserverSaga(
 
   options = build_options(options)
 
-  const observer = new SagaObservable({ name: uid || event })
+  const observer = new SagaObservable({ name: uid || EVENT })
 
   const listener = [  observer.publish, observer.publish, options ]
 
