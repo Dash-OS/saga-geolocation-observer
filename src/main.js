@@ -31,25 +31,30 @@ export default function* watchPositionObserverSaga(
   ...passThroughArgs
 ) {
   // this should be checked before we get here and logged to the user if needed.
-  if ( ! window || ! window.navigator || ! window.navigator.geolocation ) { return }
+  if ( ! window || ! window.navigator || ! window.navigator.geolocation ) { 
+    return null
+  }
 
   options = build_options(options)
-
-  const observer = new SagaObservable({ name: uid || EVENT })
-
-  const listener = [  observer.publish, observer.publish, options ]
-
-  const observerID = window.navigator.geolocation.watchPosition(
-    ...listener
-  )
-
+  
+  let observer, listener, watcherID 
+  
   try {
+    observer = new SagaObservable({ name: uid || EVENT })
+  
+    listener = [  observer.publish, observer.publish, options ]
+  
+    watcherID = window.navigator.geolocation.watchPosition(
+      ...listener
+    )
     while (true) {
-      const args = yield call([ observer, observer.next ])
+      const args = yield call([ observer, observer.next ]) || []
       if ( Array.isArray(onEvent) ) {
         yield fork(onEvent, EVENT, args[0], uid, ...passThroughArgs)
       } else if ( typeof onEvent === 'function' ) {
         yield fork([ this, onEvent ], EVENT, args[0], uid, ...passThroughArgs)
+      } else {
+        throw new Error('[saga-geolocation-observer] onEvent handler is invalid')
       }
     }
   } catch(error) {
@@ -59,9 +64,11 @@ export default function* watchPositionObserverSaga(
       } else if ( typeof onError === 'function' ) {
         yield call([ this, onError ], EVENT, error, uid, ...passThroughArgs)
       }
+    } else {
+      console.error(`[saga-geolocation-observer] ${error.message}`)
     }
   } finally {
-    window.navigator.geolocation.clearWatch(observerID)
+    window.navigator.geolocation.clearWatch(watcherID)
     if ( yield observer.cancelled() && onCancel ) {
       if ( Array.isArray(onCancel) ) {
         yield call(onCancel, EVENT, uid, ...passThroughArgs)
@@ -71,9 +78,9 @@ export default function* watchPositionObserverSaga(
     }
     if ( onFinally ) {
       if ( Array.isArray(onFinally) ) {
-        return yield call(onFinally, EVENT, uid, ...passThroughArgs)
+        yield call(onFinally, EVENT, uid, ...passThroughArgs)
       } else if ( typeof onFinally === 'function' ) {
-        return yield call([this, onFinally], EVENT, uid, ...passThroughArgs)
+        yield call([this, onFinally], EVENT, uid, ...passThroughArgs)
       }
     }
   }
