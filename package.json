@@ -1,6 +1,6 @@
 {
   "name": "saga-geolocation-observer",
-  "version": "1.0.0",
+  "version": "1.1.1",
   "description": "Use saga-observables to provide a simple way to use the HTML5 Geolocation API with redux-saga",
   "main": "dist/saga-geolocation-observer.js",
   "author": "Braden R. Napier",

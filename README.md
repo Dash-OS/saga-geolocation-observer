@@ -32,7 +32,9 @@ function* mySaga(foo, bar, ctx) {
       onEvent:  handleEvent,
       onError:  handleError,
       // optionally use [ context, fn ] for binding context.
-      onCancel: [ ctx, handleCancellation ] 
+      onCancel: [ ctx, handleCancellation ] ,
+      // called when finally is reached (catch or cancel)
+      onFinally: handleComplete,
     }, // optional lifecycle events, called as saga if possible.
     /* pass through args are sent to the handlers */
     foo, bar
@@ -56,5 +58,9 @@ function* handleError(event, error, uid, ...passThroughArgs) {
 
 function* handleCancellation(event, uid, ...passThroughArgs) {
   /* ... handle cancellation ... */
+}
+
+function* handleComplete(event, uid, ...passThroughArgs) {
+  /* ... handle finished ... */
 }
 ```
