@@ -9,50 +9,72 @@ import SagaObservable from 'saga-observable'
   while handling "push" style events as well as allows us to cancel the
   promises if we need to (in the situation that our task or process are cancelled).
 */
-export default function* eventObserver(
+
+const build_options = options => ({
+  enableHighAccuracy: true,
+  timeout: Infinity,
+  maximumAge: Infinity,
+  ...options,
+})
+
+const EVENT = 'watchPosition'
+
+export default function* watchPositionObserverSaga(
   uid,
-  [ event, options = false ],
+  options,
   {
     onEvent,
     onError,
     onCancel,
+    onFinally,
   },
   ...passThroughArgs
 ) {
+  // this should be checked before we get here and logged to the user if needed.
+  if ( ! window || ! window.navigator || ! window.navigator.geolocation ) { return }
+
+  options = build_options(options)
+
   const observer = new SagaObservable({ name: uid || event })
 
-  const listener = [ event, observer.publish, options ]
+  const listener = [  observer.publish, observer.publish, options ]
 
-  const observerID = window.addEventListener(...listener)
-  
-  const removeListener = () => window.removeEventListener(...listener)
+  const observerID = window.navigator.geolocation.watchPosition(
+    ...listener
+  )
 
   try {
     while (true) {
       const args = yield call([ observer, observer.next ])
       if ( Array.isArray(onEvent) ) {
-        yield fork(onEvent, event, args[0], uid, ...passThroughArgs)
-      } else {
-        yield fork([ this, onEvent ], event, args[0], uid, ...passThroughArgs)
+        yield fork(onEvent, EVENT, args[0], uid, ...passThroughArgs)
+      } else if ( typeof onEvent === 'function' ) {
+        yield fork([ this, onEvent ], EVENT, args[0], uid, ...passThroughArgs)
       }
     }
   } catch(error) {
     if (onError) {
       if ( Array.isArray(onError) ) {
-        yield call(onError, event, error, uid, ...passThroughArgs)
-      } else {
-        yield call([ this, onError ], event, error, uid, ...passThroughArgs)
+        yield call(onError, EVENT, error, uid, ...passThroughArgs)
+      } else if ( typeof onError === 'function' ) {
+        yield call([ this, onError ], EVENT, error, uid, ...passThroughArgs)
       }
     }
   } finally {
-    removeListener()
+    window.navigator.geolocation.clearWatch(observerID)
     if ( yield observer.cancelled() && onCancel ) {
       if ( Array.isArray(onCancel) ) {
-        yield call(onCancel, event, uid, ...passThroughArgs)
-      } else {
-        yield call([ this, onCancel ], event, uid, ...passThroughArgs)
+        yield call(onCancel, EVENT, uid, ...passThroughArgs)
+      } else if ( typeof onCancel === 'function' ) {
+        yield call([ this, onCancel ], EVENT, uid, ...passThroughArgs)
+      }
+    }
+    if ( onFinally ) {
+      if ( Array.isArray(onFinally) ) {
+        return yield call(onFinally, EVENT, uid, ...passThroughArgs)
+      } else if ( typeof onFinally === 'function' ) {
+        return yield call([this, onFinally], EVENT, uid, ...passThroughArgs)
       }
     }
   }
-  
 }
